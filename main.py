@@ -24,6 +24,8 @@ class Player:
 
 class LoveLetter:
 	def __init__(self, nplayers):
+		if nplayers not in range(2, 5):
+			raise ValueError('Invalid number of players')
 		self.nplayers = nplayers
 		self.last_first = random.randrange(0, nplayers)
 		self.players = dict((i, Player()) for i in range(nplayers))
@@ -53,12 +55,12 @@ class LoveLetter:
 			self.players[i].start(self.deck.pop())
 		self.notify = self.nplayers * ['']
 	# the main function
-	def next(self, player, choice = '', arg = ''):
+	def next(self, player, pick = '', guess = ''):
 		# whether the page should auto-refresh
 		refresh = 'true'
 		# main message
 		msg = ''
-		if player == -1: # this person is not a player
+		if player not in range(nplayers): # this person is not a player
 			msg = 'You are an observer'
 		elif self.notify[player] != '':
 			msg, self.notify[player] = self.notify[player], ''
@@ -87,16 +89,16 @@ class LoveLetter:
 					msg = 'Minister has killed you'
 				msg = 'No post-draw effect'
 			elif self.phase == 2: # discard
-				if choice == '': # still deciding
+				if pick == '': # still deciding
 					refresh = 'false'
 					msg = 'Choose card to discard:'
 					for c in cur.hand:
-						msg += '<input type="submit" name="choice" value="' + c + '"/>'
+						msg += '<input type="submit" name="pick" value="' + c + '"/>'
 					self.phase -= 1
 				else: # decided
-					cur.hand.remove(choice)
-					cur.discard.append(choice)
-					msg = 'You discarded ' + choice
+					cur.hand.remove(pick)
+					cur.discard.append(pick)
+					msg = 'You discarded ' + pick
 			elif self.phase == 3: # discard effect
 				played = cur.discard[-1]
 				if played == 'Princess': # suicide discard
@@ -104,48 +106,48 @@ class LoveLetter:
 					msg = 'You discarded the Princess :('
 				elif played == 'Minister' or played == 'Priestess': # boring discards
 					msg = 'No effect'
-				elif choice == '' or self.players[int(choice)].alive == False: # deciding target
+				elif pick == '' or self.players[int(pick)].alive == False: # deciding target
 					refresh = 'false'
 					msg = 'Choose ' + played + ' target:'
 					for i in self.players:
 						if self.players[i].alive and (i != self.turn or played == 'Wizard'):
-							msg += '<input type="submit" name="choice" value="' + str(i) + '"/>'
+							msg += '<input type="submit" name="pick" value="' + str(i) + '"/>'
 					self.phase -= 1
 				else: # decided target
-					choice = int(choice)
-					target = self.players[choice]
-					self.broadcast(self.turn, choice, played)
+					pick = int(pick)
+					target = self.players[pick]
+					self.broadcast(self.turn, pick, played)
 					if len(target.discard) == 0 or target.discard[-1] != 'Priestess': # only execute if target's last discard was not a Priestess
 						if played == 'General':
 							cur.hand, target.hand = target.hand, cur.hand
-							msg = 'Swapped hands with Player ' + str(choice)
-							self.notify[choice] = 'Swapped hands with Player ' + str(self.turn)
+							msg = 'Swapped hands with Player ' + str(pick)
+							self.notify[pick] = 'Swapped hands with Player ' + str(self.turn)
 						elif played == 'Wizard':
 							target.discard.extend(target.hand)
 							target.hand = [self.deck.pop()]
-							msg = 'Player ' + str(choice) + ' discarded their hand'
-							if choice != self.turn:
-								self.notify[choice] = 'Your hand was discarded by Player ' + str(self.turn)
+							msg = 'Player ' + str(pick) + ' discarded their hand'
+							if pick != self.turn:
+								self.notify[pick] = 'Your hand was discarded by Player ' + str(self.turn)
 						elif played == 'Knight':
-							if self.hvalue(self.turn) > self.hvalue(choice):
+							if self.hvalue(self.turn) > self.hvalue(pick):
 								msg = 'Your ' + str(cur.hand) + ' beats their ' + str(target.hand)
-								self.notify[choice] = 'Knighted by Player ' + str(self.turn) + ': Their ' + str(cur.hand) + ' beats your ' + str(target.hand)
-								self.players[choice].kill()
-							elif self.hvalue(self.turn) < self.hvalue(choice):
+								self.notify[pick] = 'Knighted by Player ' + str(self.turn) + ': Their ' + str(cur.hand) + ' beats your ' + str(target.hand)
+								self.players[pick].kill()
+							elif self.hvalue(self.turn) < self.hvalue(pick):
 								msg = 'Your ' + str(cur.hand) + ' loses to their ' + str(target.hand)
-								self.notify[choice] = 'Knighted by Player ' + str(self.turn) + ': Their ' + str(cur.hand) + ' loses to your ' + str(target.hand)
+								self.notify[pick] = 'Knighted by Player ' + str(self.turn) + ': Their ' + str(cur.hand) + ' loses to your ' + str(target.hand)
 								self.players[self.turn].kill()
 							else:
 								msg = 'Your ' + str(cur.hand) + ' equals their ' + str(target.hand)
-								self.notify[choice] = 'Knighted by Player ' + str(self.turn) + ': Their ' + str(cur.hand) + ' equals your ' + str(target.hand)
+								self.notify[pick] = 'Knighted by Player ' + str(self.turn) + ': Their ' + str(cur.hand) + ' equals your ' + str(target.hand)
 						elif played == 'Clown':
 							msg = 'Their hand was: ' + str(target.hand)
-							self.notify[choice] = 'Player ' + str(self.turn) + ' looked at your hand'
+							self.notify[pick] = 'Player ' + str(self.turn) + ' looked at your hand'
 						elif played == 'Soldier':
-							if arg == '' or arg == 'Soldier':
+							if guess == '' or guess == 'Soldier':
 								refresh = 'false'
 								msg = 'Name card:'
-								msg += '<input type="hidden" name="choice" value="' + str(choice) + '"/>'
+								msg += '<input type="hidden" name="pick" value="' + str(pick) + '"/>'
 								deck = list(self.deck)
 								for i in self.players:
 									if i != self.turn:
@@ -153,15 +155,15 @@ class LoveLetter:
 								deck = list(set(deck))
 								for c in deck:
 									if c != 'Soldier':
-										msg += '<input type="submit" name="arg" value="' + c + '">'
+										msg += '<input type="submit" name="guess" value="' + c + '">'
 								self.phase -= 1
-							elif target.hand[0] == arg:
-								self.players[choice].kill()
+							elif target.hand[0] == guess:
+								self.players[pick].kill()
 								msg = 'You were correct'
-								self.notify[choice] = 'Player ' + str(self.turn) + ' named your hand correctly'
+								self.notify[pick] = 'Player ' + str(self.turn) + ' named your hand correctly'
 							else:
 								msg = 'You were incorrect'
-								self.notify[choice] = 'Player ' + str(self.turn) + ' guessed your hand to be ' + arg
+								self.notify[pick] = 'Player ' + str(self.turn) + ' guessed your hand to be ' + guess
 					else:
 						msg = 'Effect ignored'
 			elif self.phase == 4: # end turn
@@ -210,51 +212,86 @@ class LoveLetter:
 		while self.players[self.turn].alive == False:
 			self.turn = (self.turn + 1) % self.nplayers
 
-# the entry point
-def application(env, start_response):
-	# send ack
-	start_response('200 OK', [('Content-Type','text/html')])
+def lobby(env):
+	# generate HTML list of rooms
+	rooms = '<ul>\n\t'
+	for room in os.listdir('rooms'):
+		rooms += strings.Template('\t<li><a href="/game?room=$ROOM">$ROOM</a></li>\n\t').safe_substitute(room=room)
+	rooms += '</ul>'
+	# generate HTML
+	with open('template/lobby.html', 'r') as f:
+		html = string.Template(f.read()).safe_substitute(rooms=rooms)
+	return [bytes(html, 'utf-8')]
+
+def create(env):
 	# extract the GET arguments
 	get = env['QUERY_STRING'].split('&')
-	# parse the GET arguments
-	if len(get) > 0: # there are arguments to parse
+	# default values for query
+	query = {'room': hex(int(time.time()))[2:], 'players': 2}
+	try: # try create game
+		# parse the GET arguments
 		query = dict(qc.split('=') for qc in get)
-		query['player'] = int(query.get('player', -1)) # cast 'player' into a int, defaulting to -1
-	else: # there are no arguments to parse
-		query = {'player': -1} # default 'player' to -1
-	# get a game id
-	gid = query.get('id')
-	if gid != None:
-		gid = query['id']
-		del query['id']
-	else:
-		gid = hex(int(time.time()))[2:]
-	# create or load game
-	if query.get('new') != None: # if there's a 'new' argument, create a new game with 'new' players
-		game = LoveLetter(int(query['new']))
-		del query['new']
-	else: # load an existing game, or create a new game with 2 players if none exists
-		try:
-			with open('data/game-' + gid + '.pickle', 'rb') as f:
-				game = pickle.load(f)
-		except:
-			game = LoveLetter(2)
-	# pass arguments to game
-	resp = game.next(**query)
-	# save game state
-	with open('data/game-' + gid + '.pickle', 'wb') as f:
-		pickle.dump(game, f)
-	# generate HTML
-	html = string.Template('''
-	<!DOCTYPE html>
-	<html>
-	<head>
-		<meta charset="UTF-8"/>
-		<title>Love Letter</title>
-		</head>
-	<body onload="window.setTimeout(function() { if ($refresh) { window.location.replace(location.pathname + '?id=$id&player=$player'); } }, 3000);"><form><input type="hidden" name="id" value="$id"/><input type="hidden" name="player" value="$player"/>
-		$resp
-	</form></body>
-	</html>
-	''').safe_substitute(id = gid, player = query['player'], resp = resp['msg'], refresh = resp['refresh'])
+		room = query['room']
+		# create game
+		game = LoveLetter(query['players'])
+		# save game state
+		with open('rooms/' + room + '.pickle', 'wb') as f:
+			pickle.dump(game, f)
+		# redirect user to created game
+		with open('template/redirect.html', 'r') as f:
+			url = '/game?room=' + room
+			html = string.Template(f.read()).safe_substitute(url=url)
+		return [bytes(html, 'utf-8')]
+	except: # send form for creating game instead
+		with open('template/create.html', 'r') as f:
+			html = string.Template(f.read()).safe_substitute(query)
+		return [bytes(html, 'utf-8')]
+
+def game(env):
+	# extract the GET arguments
+	get = env['QUERY_STRING'].split('&')
+	try:
+		# parse the GET arguments
+		query = dict(qc.split('=') for qc in get)
+		room = query['room']
+		# load game state
+		with open('rooms/' + room + '.pickle', 'rb') as f:
+			game = pickle.load(f)
+		# cast 'player' into an int, defaulting to -1
+		player = int(query.get('player', -1))
+		# apply action
+		resp = game.next(player, query['pick'], query['guess'])
+		# save game state
+		with open('rooms/' + room + '.pickle', 'wb') as f:
+			pickle.dump(game, f)
+		# generate HTML
+		with open('template/game.html', 'r') as f:
+			html = string.Template(f.read()).safe_substitute(room=room, player=player, resp=resp['msg'], refresh=resp['refresh'])
+		return [bytes(html, 'utf-8')]
+
+def play(env):
+	return invalid(env)
+
+def invalid(env):
+	with open('template/404.html', 'r') as f:
+		html = string.Template(f.read()).safe_substitute(env)
 	return [bytes(html, 'utf-8')]
+
+# entry point
+def application(env, start_response):
+	path = env['PATH_INFO']
+	if path == '/':
+		start_response('200 OK', [('Content-Type','text/html')])
+		return lobby(env)
+	elif path == '/new':
+		start_response('200 OK', [('Content-Type','text/html')])
+		return create(env)
+	elif path == '/game':
+		start_response('200 OK', [('Content-Type','text/html')])
+		return game(env)
+	elif path == '/play':
+		start_response('200 OK', [('Content-Type','text/html')])
+		return play(env)
+	else:
+		start_response('404 Not Found', [('Content-Type','text/html')])
+		return invalid(env)

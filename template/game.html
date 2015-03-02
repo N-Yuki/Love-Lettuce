@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<title>Game $room - Love Lettuce</title>
+</head>
+<body onload="window.setTimeout(function() { if ($refresh) { window.location.replace(location.pathname + '?room=$room&player=$player'); } }, 3000);">
+	<form>
+		<input type="hidden" name="room" value="$room"/>
+		<input type="hidden" name="player" value="$player"/>
+		$resp
+	</form>
+</body>
+</html>
