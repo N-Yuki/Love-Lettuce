@@ -217,7 +217,7 @@ def lobby(env):
 	# generate HTML list of rooms
 	rooms = '<ul>\n\t'
 	for room in os.listdir('rooms'):
-		rooms += string.Template('\t<li><a href="/game?room=$room">$room</a></li>\n\t').safe_substitute(room=room)
+		rooms += string.Template('\t<li><a href="/game?room=$room">$room</a></li>\n\t').safe_substitute(room=room[:-7])
 	rooms += '</ul>'
 	# generate HTML
 	with open('template/lobby.html', 'r') as f:
@@ -260,8 +260,10 @@ def game(env):
 			game = pickle.load(f)
 		# cast 'player' into an int, defaulting to -1
 		player = int(query.get('player', -1))
+		pick = query.get('pick', '')
+		guess = query.get('guess', '')
 		# apply action
-		resp = game.next(player, query['pick'], query['guess'])
+		resp = game.next(player, pick, guess)
 		# save game state
 		with open('rooms/' + room + '.pickle', 'wb') as f:
 			pickle.dump(game, f)
