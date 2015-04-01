@@ -57,7 +57,7 @@ class LoveLetter:
 			self.players[i].start(self.deck.pop())
 		self.notify = self.nplayers * ['']
 		# reset log
-		self.log = self.nplayers * []
+		self.log = self.nplayers * ['']
 	# the main function
 	def next(self, player, pick = '', guess = ''):
 		# whether the page should auto-refresh
