@@ -30,6 +30,7 @@ class LoveLetter:
 		self.last_first = random.randrange(0, nplayers)
 		self.players = dict((i, Player()) for i in range(nplayers))
 		self.new_round()
+		self.log = [] # TODO: reset upon each round?
 	def new_round(self):
 		# setup deck
 		self.deck_init()
@@ -185,7 +186,8 @@ class LoveLetter:
 			#stats += 'Current hand: ' + str(self.players[i].hand) + '<br/>'
 			stats += 'Discards: ' + str(self.players[i].discard) + '<br/>'
 		stats += '<br/>Your hand: ' + str(self.players[player].hand) + '<br/>'
-		resp = {'msg': stats + '<strong>' + msg + '</strong>', 'refresh': refresh}
+		self.log.append(msg)
+		resp = {'msg': stats + '<strong>' + msg + '</strong>', 'refresh': refresh, 'log': "<br>".join(self.log[:-11:-1])}
 		return resp
 	# notify players about a public event
 	def broadcast(self, s, t, evt):
@@ -266,7 +268,7 @@ def game(env):
 			pickle.dump(game, f)
 		# generate HTML
 		with open('template/game.html', 'r') as f:
-			html = string.Template(f.read()).safe_substitute(room=room, player=player, resp=resp['msg'], refresh=resp['refresh'])
+			html = string.Template(f.read()).safe_substitute(room=room, player=player, resp=resp['msg'], log=resp['log'], refresh=resp['refresh'])
 		return [bytes(html, 'utf-8')]
 	except:
 		return invalid(env)
