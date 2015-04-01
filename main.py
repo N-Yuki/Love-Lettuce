@@ -57,7 +57,9 @@ class LoveLetter:
 			self.players[i].start(self.deck.pop())
 		self.notify = self.nplayers * ['']
 		# reset log
-		self.log = self.nplayers * [[]]
+		self.log = []
+		for i in range(self.nplayers):
+			self.log.append([])
 	# the main function
 	def next(self, player, pick = '', guess = ''):
 		# whether the page should auto-refresh
@@ -67,7 +69,8 @@ class LoveLetter:
 		if player not in range(self.nplayers): # this person is not a player
 			msg = 'You are an observer'
 		elif self.notify[player] != '':
-			msg, self.notify[player] = self.notify[player], ''
+			msg = self.notify[player]
+			self.notify[player] = ''
 			self.log[player].append(msg)
 		elif player != self.turn: # it is not this player's turn
 			if self.phase == 0: 
@@ -92,7 +95,8 @@ class LoveLetter:
 				if 'Minister' in cur.hand and self.hvalue(self.turn) >= 12:
 					self.players[self.turn].kill()
 					msg = 'Minister has killed you'
-				msg = 'No post-draw effect'
+				else:
+					msg = 'No post-draw effect'
 			elif self.phase == 2: # discard
 				if pick == '': # still deciding
 					refresh = 'false'
