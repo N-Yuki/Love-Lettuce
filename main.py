@@ -39,8 +39,6 @@ class LoveLetter:
 		self.setup()
 		# create players
 		self.player_setup()
-		# reset log
-		self.log = []
 	def deck_init(self):
 		# create deck
 		self.deck = list(itertools.chain.from_iterable(map(lambda c: c[0] * [c[1]], cardlist)))
@@ -58,6 +56,8 @@ class LoveLetter:
 		for i in self.players:
 			self.players[i].start(self.deck.pop())
 		self.notify = self.nplayers * ['']
+		# reset log
+		self.log = self.nplayers * []
 	# the main function
 	def next(self, player, pick = '', guess = ''):
 		# whether the page should auto-refresh
@@ -68,6 +68,7 @@ class LoveLetter:
 			msg = 'You are an observer'
 		elif self.notify[player] != '':
 			msg, self.notify[player] = self.notify[player], ''
+			self.log[player].append(msg)
 		elif player != self.turn: # it is not this player's turn
 			if self.phase == 0: 
 				msg = 'Another player is drawing'
@@ -184,11 +185,11 @@ class LoveLetter:
 			stats += 'Player ' + str(i) + ' (score=' + str(self.players[i].score) + ')' + ' Alive: ' + str(self.players[i].alive) + '<br/>'
 			#stats += 'Current hand: ' + str(self.players[i].hand) + '<br/>'
 			stats += 'Discards: ' + str(self.players[i].discard) + '<br/>'
+		log = 'No game log is stored for observers'
 		if player in range(self.nplayers):
 			stats += '<br/>Your hand: ' + str(self.players[player].hand) + '<br/>'
-		if player != self.turn and (not self.log or self.log[-1] != msg):
-			self.log.append(msg)
-		resp = {'msg': stats + '<strong>' + msg + '</strong>', 'refresh': refresh, 'log': '<br/>'.join(self.log[:-11:-1])}
+			log = '<br/>'.join(self.log[player][:-11:-1])
+		resp = {'msg': stats + '<strong>' + msg + '</strong>', 'refresh': refresh, 'log': log}
 		return resp
 	# notify players about a public event
 	def broadcast(self, s, t, evt):
