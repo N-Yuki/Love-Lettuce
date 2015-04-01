@@ -184,7 +184,8 @@ class LoveLetter:
 			stats += 'Player ' + str(i) + ' (score=' + str(self.players[i].score) + ')' + ' Alive: ' + str(self.players[i].alive) + '<br/>'
 			#stats += 'Current hand: ' + str(self.players[i].hand) + '<br/>'
 			stats += 'Discards: ' + str(self.players[i].discard) + '<br/>'
-		stats += '<br/>Your hand: ' + str(self.players[player].hand) + '<br/>'
+		if player in range(self.nplayers):
+			stats += '<br/>Your hand: ' + str(self.players[player].hand) + '<br/>'
 		self.log.append(msg)
 		resp = {'msg': stats + '<strong>' + msg + '</strong>', 'refresh': refresh, 'log': '<br/>'.join(self.log[:-11:-1])}
 		return resp
