@@ -217,7 +217,7 @@ def lobby(env):
 	# generate HTML list of rooms
 	rooms = '<ul>\n\t'
 	for room in os.listdir('rooms'):
-		rooms += strings.Template('\t<li><a href="/game?room=$ROOM">$ROOM</a></li>\n\t').safe_substitute(room=room)
+		rooms += string.Template('\t<li><a href="/game?room=$room">$room</a></li>\n\t').safe_substitute(room=room)
 	rooms += '</ul>'
 	# generate HTML
 	with open('template/lobby.html', 'r') as f:
