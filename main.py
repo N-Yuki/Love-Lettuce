@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, sys, pickle, random, string, time
+import os, sys, pickle, random, string, time, itertools
 
 class Player:
 	def __init__(self):
@@ -22,6 +22,8 @@ class Player:
 		self.discard.extend(self.hand)
 		self.hand.clear()
 
+cardlist = [(1, 'Princess'), (1, 'Minister'), (1, 'General'), (2, 'Wizard'), (2, 'Priestess'), (2, 'Knight'), (2, 'Clown'), (5, 'Soldier')]
+
 class LoveLetter:
 	def __init__(self, nplayers):
 		if nplayers not in range(2, 5):
@@ -40,7 +42,7 @@ class LoveLetter:
 		self.player_setup()
 	def deck_init(self):
 		# create deck
-		self.deck = 1 * ['Princess'] + 1 * ['Minister'] + 1 * ['General'] + 2 * ['Wizard'] + 2 * ['Priestess'] + 2 * ['Knight'] + 2 * ['Clown'] + 5 * ['Soldier']
+		self.deck = list(itertools.chain.from_iterable(map(lambda c: c[0] * [c[1]], cardlist)))
 		# shuffle deck
 		random.shuffle(self.deck)
 		# discard 1 card
@@ -149,11 +151,7 @@ class LoveLetter:
 								refresh = 'false'
 								msg = 'Name card:'
 								msg += '<input type="hidden" name="pick" value="' + str(pick) + '"/>'
-								deck = list(self.deck)
-								for i in self.players:
-									if i != self.turn:
-										deck.extend(self.players[i].hand)
-								deck = list(set(deck))
+								deck = list(map(lambda c: c[1], cardlist))
 								for c in deck:
 									if c != 'Soldier':
 										msg += '<input type="submit" name="guess" value="' + c + '">'
