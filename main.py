@@ -32,7 +32,6 @@ class LoveLetter:
 		self.last_first = random.randrange(0, nplayers)
 		self.players = dict((i, Player()) for i in range(nplayers))
 		self.new_round()
-		self.log = [] # TODO: reset upon each round?
 	def new_round(self):
 		# setup deck
 		self.deck_init()
@@ -40,6 +39,8 @@ class LoveLetter:
 		self.setup()
 		# create players
 		self.player_setup()
+		# reset log
+		self.log = []
 	def deck_init(self):
 		# create deck
 		self.deck = list(itertools.chain.from_iterable(map(lambda c: c[0] * [c[1]], cardlist)))
@@ -185,7 +186,7 @@ class LoveLetter:
 			stats += 'Discards: ' + str(self.players[i].discard) + '<br/>'
 		stats += '<br/>Your hand: ' + str(self.players[player].hand) + '<br/>'
 		self.log.append(msg)
-		resp = {'msg': stats + '<strong>' + msg + '</strong>', 'refresh': refresh, 'log': "<br>".join(self.log[:-11:-1])}
+		resp = {'msg': stats + '<strong>' + msg + '</strong>', 'refresh': refresh, 'log': '<br/>'.join(self.log[:-11:-1])}
 		return resp
 	# notify players about a public event
 	def broadcast(self, s, t, evt):
@@ -233,7 +234,7 @@ def create(env):
 		query = dict(qc.split('=') for qc in get)
 		room = query['room']
 		# create game
-		game = LoveLetter(query['players'])
+		game = LoveLetter(int(query['players']))
 		# save game state
 		with open('rooms/' + room + '.pickle', 'wb') as f:
 			pickle.dump(game, f)
