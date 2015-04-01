@@ -64,7 +64,7 @@ class LoveLetter:
 		refresh = 'true'
 		# main message
 		msg = ''
-		if player not in range(nplayers): # this person is not a player
+		if player not in range(self.nplayers): # this person is not a player
 			msg = 'You are an observer'
 		elif self.notify[player] != '':
 			msg, self.notify[player] = self.notify[player], ''
@@ -260,6 +260,7 @@ def game(env):
 			game = pickle.load(f)
 		# cast 'player' into an int, defaulting to -1
 		player = int(query.get('player', -1))
+		# get other parameters
 		pick = query.get('pick', '')
 		guess = query.get('guess', '')
 		# apply action
