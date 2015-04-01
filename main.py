@@ -268,6 +268,8 @@ def game(env):
 		with open('template/game.html', 'r') as f:
 			html = string.Template(f.read()).safe_substitute(room=room, player=player, resp=resp['msg'], refresh=resp['refresh'])
 		return [bytes(html, 'utf-8')]
+	except:
+		return invalid(env)
 
 def play(env):
 	return invalid(env)
