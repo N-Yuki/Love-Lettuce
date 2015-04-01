@@ -186,7 +186,7 @@ class LoveLetter:
 			stats += 'Discards: ' + str(self.players[i].discard) + '<br/>'
 		if player in range(self.nplayers):
 			stats += '<br/>Your hand: ' + str(self.players[player].hand) + '<br/>'
-		if not self.log or self.log[-1] != msg:
+		if player != self.turn and (not self.log or self.log[-1] != msg):
 			self.log.append(msg)
 		resp = {'msg': stats + '<strong>' + msg + '</strong>', 'refresh': refresh, 'log': '<br/>'.join(self.log[:-11:-1])}
 		return resp
