@@ -133,7 +133,10 @@ class LoveLetter:
 							self.notify[pick] = 'Swapped hands with Player ' + str(self.turn)
 						elif played == 'Wizard':
 							target.discard.extend(target.hand)
-							target.hand = [self.deck.pop()]
+							if target.hand[0] == 'Princess':
+								target.kill()
+							if target.alive:
+								target.hand = [self.deck.pop()]
 							msg = 'Player ' + str(pick) + ' discarded their hand'
 							if pick != self.turn:
 								self.notify[pick] = 'Your hand was discarded by Player ' + str(self.turn)
